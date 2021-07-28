@@ -13,6 +13,13 @@ defmodule ChatappWeb.Router do
     plug :accepts, ["json"]
   end
 
+  scope "/api/v1", ChatappWeb do
+    pipe_through :api
+
+    post "/users/login", UserController, :login
+    resources "/users", UserController, only: [:show, :create]
+  end
+
   scope "/", ChatappWeb do
     pipe_through :browser
 
