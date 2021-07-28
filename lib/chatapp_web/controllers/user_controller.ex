@@ -9,12 +9,16 @@ defmodule ChatappWeb.UserController do
     end
   end
 
-  def create(conn, params) do
-    with {:ok, user} <- UserService.new_user(params) do
+  def create(conn, _params = %{"username" => username}) do
+    with {:ok, user} <- UserService.new_user(%{username: username}) do
       conn |> render("user.json", username: user.username)
     else
       {:error, changeset} ->
-        conn |> put_view(ChatappWeb.ErrorView) |> render("error.json", changeset: changeset)
+        # Just because the only error is duplicate for now
+        # It needs more advanced error handling later.
+        put_status(conn, 409)
+        |> put_view(ChatappWeb.ErrorView)
+        |> render("error.json", changeset: changeset)
     end
   end
 end
