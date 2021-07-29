@@ -7,12 +7,14 @@
     "watch": "webpack --mode development --watch"
   },
   "dependencies": {
+    "dateformat": "^5.0.2",
     "phoenix": "file:../deps/phoenix",
     "phoenix_html": "file:../deps/phoenix_html",
     "svelte": "^3.43.2",
     "svelte-loader": "^3.1.2"
   },
   "devDependencies": {
+    "core-js": "^2.0.0",
     "@babel/core": "^7.0.0",
     "@babel/preset-env": "^7.0.0",
     "babel-loader": "^8.0.0",

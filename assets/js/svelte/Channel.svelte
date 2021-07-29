@@ -1,12 +1,22 @@
 <script>
+  import { createEventDispatcher } from "svelte";
   export let channel_name = "Placeholder";
   export let id;
-  export let desc =
-    "Test, which is a new approach to have all solutions astrology under one roof.";
+  export let description;
   export let active = false;
+
+  const dispatch = createEventDispatcher();
+
+  function channel_click() {
+    dispatch("channel_click", { id });
+  }
 </script>
 
-<div class="channel_wrapper" class:active_chat={active}>
+<div
+  on:click={channel_click}
+  class="channel_wrapper"
+  class:active_chat={active}
+>
   <div class="channel_content">
     <div class="channel_img">
       <img
@@ -17,7 +27,7 @@
     <div class="channel_info">
       <p class="channel_name">{"#" + channel_name}</p>
       <p class="channel_desc">
-        {desc}
+        {description}
       </p>
     </div>
   </div>
@@ -37,6 +47,7 @@
     padding: 18px 16px 10px;
     height: 4.2rem;
     overflow: hidden;
+    cursor: pointer;
   }
   .channel_content {
     display: flex;

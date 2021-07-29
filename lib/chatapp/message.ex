@@ -1,5 +1,6 @@
 defmodule Chatapp.Message do
   use Ecto.Schema
+  @timestamps_opts [type: :utc_datetime]
   import Ecto.Changeset
 
   schema "messages" do

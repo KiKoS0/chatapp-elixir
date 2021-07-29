@@ -4,6 +4,7 @@ defmodule Chatapp.Repo.Migrations.CreateChannels do
   def change do
     create table(:channels) do
       add :name, :string
+      add :description, :string
 
       timestamps()
     end

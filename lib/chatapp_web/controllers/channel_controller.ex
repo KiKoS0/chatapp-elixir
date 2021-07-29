@@ -2,8 +2,9 @@ defmodule ChatappWeb.ChannelController do
   use ChatappWeb, :controller
   alias Chatapp.ChannelService, as: ChannelService
 
-  def create(conn, _params = %{"channel_name" => channel_name}) do
-    with {:ok, channel} <- ChannelService.new_channel(%{name: channel_name}) do
+  def create(conn, _params = %{"channel_name" => channel_name, "description" => description}) do
+    with {:ok, channel} <-
+           ChannelService.new_channel(%{name: channel_name, description: description}) do
       IO.puts("HELLO WORLD #{inspect(channel)}")
       conn |> render("channel_wrap.json", channel: channel)
     else

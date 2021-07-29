@@ -1,15 +1,97 @@
 <script>
   import Channel from "./Channel.svelte";
   import { onMount } from "svelte";
-  import { getChannels } from "../api";
-  import Auth from "./Auth.svelte";
+  import { getChannels, getMessages, sendMessage } from "../api";
+  import Message from "./Message.svelte";
+  import { userInfo } from "./store";
+  import socket from "../room_socket";
+
+  import { transform_msg } from "../utils.js";
 
   let channels = [];
+  let messages = [];
+  let loading = false;
+  let active_channel_id = -1;
+  let message_to_send = "";
+  let current_channel = null;
 
   onMount(async () => {
     channels = await getChannels();
     console.log(channels);
   });
+
+  function switchChannel(channel_id) {
+    if (current_channel) {
+      current_channel.leave();
+    }
+    current_channel = socket.channel(`room:${channel_id}`);
+    current_channel.on("new_msg", (payload) => {
+      const msg = payload.data;
+      if (msg.user.id !== $userInfo["id"])
+        messages = [...messages, transform_msg(msg)];
+    });
+    current_channel
+      .join()
+      .receive("ok", (resp) => {
+        console.log("Joined successfully", resp);
+      })
+      .receive("error", (resp) => {
+        console.log("Unable to join", resp);
+      });
+  }
+
+  async function handleMessage(event) {
+    loading = true;
+    const channel_id = event.detail.id;
+    if (channel_id != active_channel_id) {
+      messages = [];
+      console.log(`Switching to channel: ${channel_id}`);
+      active_channel_id = channel_id;
+      channels.forEach((elem) => (elem.active = false));
+      channels.find((o, i) => {
+        if (o.id === active_channel_id) {
+          o.active = true;
+          channels[i] = o;
+          return true; // stop searching
+        }
+      });
+      let mess = await getMessages(active_channel_id);
+      mess = mess.map((msg) => {
+        return transform_msg(msg);
+      });
+      messages = mess;
+      switchChannel(channel_id);
+      scroll_down();
+    }
+    loading = false;
+  }
+  function scroll_down() {
+    setTimeout(() => {
+      var element = document.getElementById("msg_history");
+      element.scrollTop = element.scrollHeight;
+    }, 200);
+  }
+  async function send_message() {
+    if (message_to_send) {
+      loading = true;
+      console.log(`Sending: ${message_to_send}`);
+      const msg_content = message_to_send;
+      message_to_send = "";
+      const msg = await sendMessage(active_channel_id, {
+        content: msg_content,
+        user_id: $userInfo["id"],
+      });
+      console.log(msg);
+      messages = [...messages, transform_msg(msg)];
+      scroll_down();
+    }
+    loading = false;
+  }
+  async function send_message_keyup(event) {
+    if (event.keyCode === 13) {
+      await send_message();
+    }
+  }
 </script>
 
 <div class="messaging">
@@ -23,82 +105,36 @@
       <div class="messaging-wrapper">
         <div class="inbox_chat">
           {#each channels as channel, i}
-            <Channel {...channel} active={false} />
+            <Channel on:channel_click={handleMessage} {...channel} />
           {/each}
         </div>
         <div class="mesgs">
-          <div class="msg_history">
-            <div class="incoming_msg">
-              <div class="incoming_msg_img">
-                <img
-                  src="https://cdn3.iconfinder.com/data/icons/vector-icons-6/96/256-512.png"
-                  alt="sunil"
-                />
+          <div id="msg_history" class="msg_history">
+            {#if messages && messages.length > 0}
+              {#each messages as message, i}
+                <Message {...message} />
+              {/each}
+            {:else if !loading && active_channel_id !== -1}
+              <div class="no-messages">
+                <p>Such Empty!</p>
+                <p>Go ahead and send the first message</p>
               </div>
-              <div class="received_msg">
-                <div class="received_withd_msg">
-                  <p>Test which is a new approach to have all solutions</p>
-                  <span class="time_date"> 11:01 AM | June 9</span>
-                </div>
-              </div>
-            </div>
-            <div class="outgoing_msg">
-              <div class="sent_msg">
-                <p>Test which is a new approach to have all solutions</p>
-                <span class="time_date"> 11:01 AM | June 9</span>
-              </div>
-            </div>
-            <div class="incoming_msg">
-              <div class="incoming_msg_img">
-                <img
-                  src="https://cdn3.iconfinder.com/data/icons/vector-icons-6/96/256-512.png"
-                  alt="sunil"
-                />
-              </div>
-              <div class="received_msg">
-                <div class="received_withd_msg">
-                  <p>Test, which is a new approach to have</p>
-                  <span class="time_date"> 11:01 AM | Yesterday</span>
-                </div>
-              </div>
-            </div>
-            <div class="outgoing_msg">
-              <div class="sent_msg">
-                <p>Apollo University, Delhi, India Test</p>
-                <span class="time_date"> 11:01 AM | Today</span>
-              </div>
-            </div>
-            <div class="incoming_msg">
-              <div class="incoming_msg_img">
-                <img
-                  src="https://cdn3.iconfinder.com/data/icons/vector-icons-6/96/256-512.png"
-                  alt="sunil"
-                />
-              </div>
-              <div class="received_msg">
-                <div class="received_withd_msg">
-                  <p>
-                    We work directly with our designers and suppliers, and sell
-                    direct to you, which means quality, exclusive products, at a
-                    price anyone can afford.
-                  </p>
-                  <span class="time_date"> 11:01 AM | Today</span>
-                </div>
-              </div>
-            </div>
+            {/if}
           </div>
-          <div class="type_msg">
-            <div class="input_msg_write">
+          {#if active_channel_id !== -1}
+            <div class="type_msg">
               <input
+                bind:value={message_to_send}
+                on:keyup={send_message_keyup}
                 type="text"
                 class="write_msg"
-                placeholder="Type a message"
+                placeholder="Aa"
               />
-              <button class="msg_send_btn" type="button"
+              <button on:click={send_message} class="msg_send_btn" type="button"
                 ><i class="fa fa-paper-plane-o" aria-hidden="true" /></button
               >
             </div>
-          </div>
+          {/if}
         </div>
       </div>
     </div>
@@ -108,6 +144,9 @@
 <style>
   img {
     max-width: 100%;
+  }
+  .no-messages {
+    text-align: center;
   }
   .messaging-wrapper {
     display: flex;
@@ -167,67 +206,27 @@
     width: 30rem;
   }
 
-  .incoming_msg_img {
-    display: inline-block;
-    width: 6%;
-  }
-  .received_msg {
-    display: inline-block;
-    padding: 0 0 0 10px;
-    vertical-align: top;
-    width: 92%;
-  }
-  .received_withd_msg p {
-    background: #ebebeb none repeat scroll 0 0;
-    border-radius: 3px;
-    color: #646464;
-    font-size: 14px;
-    margin: 0;
-    padding: 5px 10px 5px 12px;
-    width: 100%;
-  }
-  .time_date {
-    color: #747474;
-    display: block;
-    font-size: 12px;
-    margin: 8px 0 0;
-  }
-  .received_withd_msg {
-    width: 57%;
-  }
   .mesgs {
     padding: 30px 15px 0 25px;
-  }
-
-  .sent_msg p {
-    background: #f05423 none repeat scroll 0 0;
-    border-radius: 3px;
-    font-size: 14px;
-    margin: 0;
-    color: #fff;
-    padding: 5px 10px 5px 12px;
     width: 100%;
   }
-  .outgoing_msg {
-    overflow: hidden;
-    margin: 26px 0 26px;
-  }
-  .sent_msg {
-    float: right;
-    width: 46%;
-  }
-  .input_msg_write input {
+
+  .type_msg input {
     background: rgba(0, 0, 0, 0) none repeat scroll 0 0;
     border: medium none;
     color: #4c4c4c;
     font-size: 15px;
     min-height: 48px;
-    width: 100%;
+    width: 0;
+    flex: 4;
   }
 
   .type_msg {
     border-top: 1px solid #c4c4c4;
-    position: relative;
+    display: flex;
+    align-content: center;
+    align-items: center;
+    gap: 0.7rem;
   }
   .msg_send_btn {
     background: #f05423 none repeat scroll 0 0;
@@ -237,9 +236,6 @@
     cursor: pointer;
     font-size: 17px;
     height: 33px;
-    position: absolute;
-    right: 0;
-    top: 11px;
     width: 33px;
   }
   .messaging {

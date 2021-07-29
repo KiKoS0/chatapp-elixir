@@ -4,6 +4,7 @@ defmodule Chatapp.Channel do
 
   schema "channels" do
     field :name, :string
+    field :description, :string
     has_many :messages, Chatapp.Message
     timestamps()
   end
@@ -11,7 +12,7 @@ defmodule Chatapp.Channel do
   @doc false
   def changeset(channel, attrs) do
     channel
-    |> cast(attrs, [:name])
+    |> cast(attrs, [:name, :description])
     |> unique_constraint(:name)
     |> validate_required([:name])
   end
