@@ -1,5 +1,5 @@
 <script>
-  export let name = "Placeholder";
+  export let channel_name = "Placeholder";
   export let id;
   export let desc =
     "Test, which is a new approach to have all solutions astrology under one roof.";
@@ -15,7 +15,7 @@
       />
     </div>
     <div class="channel_info">
-      <p class="channel_name">{"#" + name}</p>
+      <p class="channel_name">{"#" + channel_name}</p>
       <p class="channel_desc">
         {desc}
       </p>

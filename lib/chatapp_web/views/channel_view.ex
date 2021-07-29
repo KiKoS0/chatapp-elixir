@@ -4,8 +4,8 @@ defmodule ChatappWeb.ChannelView do
   def render("channel.json", %{channel: channel}) do
     %{
       id: channel.id,
-      channel_name: channel.name,
-      messages: render_many(channel.messages, ChatappWeb.MessageView, "message.json")
+      channel_name: channel.name
+      # messages: render_many(channel.messages, ChatappWeb.MessageView, "message.json")
     }
   end
 

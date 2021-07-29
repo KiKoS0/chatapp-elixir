@@ -16,3 +16,18 @@ export const login = (data) =>
     const res = await response.json();
     return res["data"];
   })();
+
+export const getChannels = () =>
+  (async () => {
+    const response = await fetch(api_prefix + '/channels', {
+      mode: 'cors',
+      method: 'get',
+      Accept: "application/json",
+      headers: {
+        // Authorization: 'Bearer ' + token,
+        "Content-Type": "application/json"
+      }
+    });
+    const res = await response.json();
+    return res["data"];
+  })();

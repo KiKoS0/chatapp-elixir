@@ -1,5 +1,15 @@
 <script>
   import Channel from "./Channel.svelte";
+  import { onMount } from "svelte";
+  import { getChannels } from "../api";
+  import Auth from "./Auth.svelte";
+
+  let channels = [];
+
+  onMount(async () => {
+    channels = await getChannels();
+    console.log(channels);
+  });
 </script>
 
 <div class="messaging">
@@ -12,12 +22,9 @@
       </div>
       <div class="messaging-wrapper">
         <div class="inbox_chat">
-          <Channel active={true} />
-          <Channel />
-          <Channel />
-          <Channel />
-          <Channel />
-          <Channel />
+          {#each channels as channel, i}
+            <Channel {...channel} active={false} />
+          {/each}
         </div>
         <div class="mesgs">
           <div class="msg_history">
