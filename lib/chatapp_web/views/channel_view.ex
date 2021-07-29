@@ -2,7 +2,11 @@ defmodule ChatappWeb.ChannelView do
   use ChatappWeb, :view
 
   def render("channel.json", %{channel: channel}) do
-    %{channel_name: channel.name}
+    %{
+      id: channel.id,
+      channel_name: channel.name,
+      messages: render_many(channel.messages, ChatappWeb.MessageView, "message.json")
+    }
   end
 
   def render("channel_wrap.json", %{channel: channel}) do

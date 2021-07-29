@@ -1,0 +1,23 @@
+defmodule ChatappWeb.MessageController do
+  use ChatappWeb, :controller
+  alias Chatapp.MessageService, as: MessageService
+
+  def create(
+        conn,
+        _params = %{"channel_id" => channel_id, "content" => content, "user_id" => user_id}
+      ) do
+    with {:ok, message} <-
+           MessageService.new_message(%{
+             content: content,
+             user_id: user_id,
+             channel_id: channel_id
+           }) do
+      conn |> render("message_wrap.json", message: message)
+    else
+      {:error, changeset} ->
+        put_status(conn, 400)
+        |> put_view(ChatappWeb.ErrorView)
+        |> render("error.json", changeset: changeset)
+    end
+  end
+end

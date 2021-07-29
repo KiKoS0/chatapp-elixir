@@ -11,7 +11,7 @@ defmodule Chatapp.ChannelService do
   end
 
   def get_by_id(id) do
-    Repo.one(from u in Channel, where: u.id == ^id)
+    Repo.one(from u in Channel, where: u.id == ^id) |> Repo.preload(messages: [:user])
   end
 
   def new_channel(data) do

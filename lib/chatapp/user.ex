@@ -4,7 +4,7 @@ defmodule Chatapp.User do
 
   schema "users" do
     field :username, :string
-
+    has_many :messages, Chatapp.Message
     timestamps()
   end
 

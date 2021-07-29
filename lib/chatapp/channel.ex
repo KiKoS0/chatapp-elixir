@@ -4,7 +4,7 @@ defmodule Chatapp.Channel do
 
   schema "channels" do
     field :name, :string
-
+    has_many :messages, Chatapp.Message
     timestamps()
   end
 

@@ -18,7 +18,10 @@ defmodule ChatappWeb.Router do
 
     post "/users/login", UserController, :login
     resources "/users", UserController, only: [:show, :create]
-    resources "/channels", ChannelController, only: [:index, :show, :create]
+
+    resources "/channels", ChannelController, only: [:index, :show, :create] do
+      resources "/messages", MessageController, only: [:create]
+    end
   end
 
   scope "/", ChatappWeb do
