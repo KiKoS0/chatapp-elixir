@@ -1,9 +1,17 @@
 <script>
-  let username = null;
+  import { login } from "../api";
+  import { userInfo } from "./store";
 
-  function handleSubmit() {
+  let username = "KiKoS";
+
+  async function handleSubmit() {
     if (username) {
       console.log("Username is: " + username);
+      const data = await login({ username });
+      console.log(data);
+      userInfo.update((_) => {
+        return { id: data.id, username: data.username };
+      });
     } else {
       console.log("Username empty");
     }

@@ -1,7 +1,7 @@
 defmodule ChatappWeb.UserView do
   use ChatappWeb, :view
 
-  def render("user.json", %{username: username}) do
-    %{data: %{username: username}}
+  def render("user.json", %{user: user}) do
+    %{data: %{id: user.id, username: user.username}}
   end
 end

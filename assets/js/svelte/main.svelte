@@ -22,8 +22,10 @@
 
 <section class="row justify-content-center">
   {#if $userInfo}
-    <article class="col-4">
-      <h1 class="redred">Hey {name}, Phoenix and Svelte setup is working!</h1>
+    <article class="col-8">
+      <h1 class="redred">
+        Hey {$userInfo["username"]}, You are user number {$userInfo["id"]}
+      </h1>
     </article>
   {:else}
     <Auth />
