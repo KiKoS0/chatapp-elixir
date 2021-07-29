@@ -157,7 +157,7 @@
 
   .inbox_chat {
     overflow-y: scroll;
-    width: 24rem;
+    width: 30rem;
   }
 
   .incoming_msg_img {

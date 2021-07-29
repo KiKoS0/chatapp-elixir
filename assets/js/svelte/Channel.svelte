@@ -6,15 +6,15 @@
   export let active = false;
 </script>
 
-<div class="chat_list" class:active_chat={active}>
-  <div class="chat_people">
-    <div class="chat_img">
+<div class="channel_wrapper" class:active_chat={active}>
+  <div class="channel_content">
+    <div class="channel_img">
       <img
         src="https://cdn3.iconfinder.com/data/icons/vector-icons-6/96/256-512.png"
         alt="sunil"
       />
     </div>
-    <div class="chat_ib">
+    <div class="channel_info">
       <p class="channel_name">{"#" + name}</p>
       <p class="channel_desc">
         {desc}
@@ -31,16 +31,15 @@
   .active_chat {
     background: #ebebeb;
   }
-  .chat_list {
+  .channel_wrapper {
     border-bottom: 1px solid #c4c4c4;
     margin: 0;
     padding: 18px 16px 10px;
     height: 4.2rem;
     overflow: hidden;
   }
-  .chat_people {
-    overflow: hidden;
-    clear: both;
+  .channel_content {
+    display: flex;
   }
   .channel_name {
     font-size: 15px;
@@ -51,17 +50,18 @@
   .channel_desc {
     font-size: 14px;
     color: #989898;
-    margin: auto;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
+    margin-bottom: 0px;
+  }
+  .channel_img {
+    width: 3rem;
+    height: 3rem;
+  }
+  .channel_info {
     text-overflow: ellipsis;
     overflow: hidden;
-  }
-  .chat_img {
-    float: left;
-    width: 11%;
-  }
-  .chat_ib {
-    float: left;
-    padding: 0 0 0 15px;
-    width: 88%;
+    margin-left: 1rem !important;
   }
 </style>
