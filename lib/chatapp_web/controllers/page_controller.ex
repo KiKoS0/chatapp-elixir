@@ -2,6 +2,7 @@ defmodule ChatappWeb.PageController do
   use ChatappWeb, :controller
 
   def index(conn, _params) do
-    render(conn, "index.html")
+    oauth_google_url = ElixirAuthGoogle.generate_oauth_url(conn)
+    render(conn, "index.html",[oauth_google_url: oauth_google_url])
   end
 end

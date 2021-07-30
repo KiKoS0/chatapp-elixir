@@ -40,6 +40,7 @@ defmodule ChatappWeb.Router do
   scope "/", ChatappWeb do
     pipe_through :browser
 
+    get "/auth/google/callback", GoogleAuthController, :index
     get "/", PageController, :index
   end
 

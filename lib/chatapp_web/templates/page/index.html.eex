@@ -1,2 +1,7 @@
 
-<%= Sveltex.render "main", %{name: "virkillz"} %>
+
+<%= if assigns[:profile] do %>
+<%= Sveltex.render "main", %{profile: @profile} %>
+<% else %>
+<%= Sveltex.render "main", %{oauth_google_url: @oauth_google_url} %>
+<% end %>

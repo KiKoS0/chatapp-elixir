@@ -6,6 +6,11 @@
   import Modal from "./Modal.svelte";
 
   onMount(async () => {
+    console.log("profile");
+    console.log(profile);
+    console.log("oauth_google_url");
+    console.log(oauth_google_url);
+
     const res = await fetch(
       `https://jsonplaceholder.typicode.com/photos?_limit=20`
     );
@@ -19,7 +24,8 @@
     }
   });
 
-  export let name;
+  export let profile;
+  export let oauth_google_url;
 </script>
 
 <Modal show={$modal}>
@@ -34,7 +40,7 @@
         </div>
       </article>
     {:else}
-      <Auth />
+      <Auth {oauth_google_url} />
     {/if}
   </section>
 </Modal>
