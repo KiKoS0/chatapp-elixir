@@ -1,12 +1,16 @@
 <script>
   import Channel from "./Channel.svelte";
   import { onMount } from "svelte";
-  import { getChannels, getMessages, sendMessage } from "../api";
+  import { getChannels, getMessages, sendMessage, addChannel } from "../api";
   import Message from "./Message.svelte";
   import { userInfo } from "./store";
   import socket from "../room_socket";
-
+  import AddChannelPopup from "./AddChannelPopup.svelte";
+  import Modal from "./Modal.svelte";
   import { transform_msg } from "../utils.js";
+  import { getContext } from "svelte";
+
+  const { open } = getContext("simple-modal");
 
   let channels = [];
   let messages = [];
@@ -14,11 +18,34 @@
   let active_channel_id = -1;
   let message_to_send = "";
   let current_channel = null;
+  let global_channel = null;
 
   onMount(async () => {
-    channels = await getChannels();
-    console.log(channels);
+    await loadChannels();
+    global_channel = socket.channel(`room:global`);
+    global_channel.on("channel_add", async (payload) => {
+      console.log("Channel changed Reloading ....");
+      const channel = payload.data;
+      channels = [...channels, channel];
+    });
+    global_channel
+      .join()
+      .receive("ok", (resp) => {
+        console.log("Joined Global successfully", resp);
+      })
+      .receive("error", (resp) => {
+        console.log("Unable to join Global", resp);
+      });
   });
+
+  async function loadChannels() {
+    loading = true;
+    channels = [];
+    messages = [];
+    channels = await getChannels();
+    loading = false;
+    console.log(channels);
+  }
 
   function switchChannel(channel_id) {
     if (current_channel) {
@@ -92,6 +119,32 @@
       await send_message();
     }
   }
+  const showPopup = () => {
+    const onCancel = (text) => {
+      console.log("CANCELED");
+    };
+
+    const onOkay = async (payload) => {
+      console.log(payload);
+      const channel = await addChannel(payload);
+      console.log(channel);
+    };
+
+    open(
+      AddChannelPopup,
+      {
+        message: "Add channel",
+        hasForm: true,
+        onCancel,
+        onOkay,
+      },
+      {
+        closeButton: false,
+        closeOnEsc: false,
+        closeOnOuterClick: false,
+      }
+    );
+  };
 </script>
 
 <div class="messaging">
@@ -100,6 +153,9 @@
       <div class="heading_srch">
         <div class="recent_heading">
           <h4>Channels</h4>
+          <button on:click={showPopup} class="msg_send_btn" type="button"
+            ><i class="fa fa-plus" aria-hidden="true" /></button
+          >
         </div>
       </div>
       <div class="messaging-wrapper">
@@ -164,8 +220,8 @@
     overflow: hidden;
   }
   .recent_heading {
-    float: left;
-    width: 40%;
+    display: flex;
+    gap: 1.5rem;
   }
   .srch_bar {
     display: inline-block;
@@ -181,7 +237,6 @@
   .recent_heading h4 {
     color: #f05423;
     font-size: 21px;
-    margin: auto;
   }
   .srch_bar input {
     border: 1px solid #cdcdcd;
@@ -202,8 +257,10 @@
   }
 
   .inbox_chat {
+    overflow-x: hidden;
     overflow-y: scroll;
     width: 30rem;
+    max-height: 516px;
   }
 
   .mesgs {
@@ -242,7 +299,7 @@
     padding: 0 0 50px 0;
   }
   .msg_history {
-    height: 516px;
+    height: 437px;
     overflow-y: auto;
   }
 

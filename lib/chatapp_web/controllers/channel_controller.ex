@@ -6,6 +6,13 @@ defmodule ChatappWeb.ChannelController do
     with {:ok, channel} <-
            ChannelService.new_channel(%{name: channel_name, description: description}) do
       IO.puts("HELLO WORLD #{inspect(channel)}")
+
+      ChatappWeb.Endpoint.broadcast(
+        "room:global",
+        "channel_add",
+        ChatappWeb.ChannelView.render("channel_wrap.json", channel: channel)
+      )
+
       conn |> render("channel_wrap.json", channel: channel)
     else
       {:error, changeset} ->
