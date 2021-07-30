@@ -7,7 +7,7 @@ defmodule Chatapp.MixProject do
       version: "0.1.0",
       elixir: "~> 1.7",
       elixirc_paths: elixirc_paths(Mix.env()),
-      compilers: [:phoenix, :gettext] ++ Mix.compilers(),
+      compilers: [:phoenix, :gettext] ++ Mix.compilers ++ [:phoenix_swagger],
       start_permanent: Mix.env() == :prod,
       aliases: aliases(),
       deps: deps()
@@ -45,7 +45,10 @@ defmodule Chatapp.MixProject do
       {:gettext, "~> 0.11"},
       {:jason, "~> 1.0"},
       {:plug_cowboy, "~> 2.0"},
-      {:sveltex, git: "https://github.com/virkillz/sveltex.git", tag: "1.1.2"}
+      {:elixir_auth_google, "~> 1.6.0"},
+      {:sveltex, git: "https://github.com/virkillz/sveltex.git", tag: "1.1.2"},
+      {:phoenix_swagger, "~> 0.8"},
+      {:ex_json_schema, "~> 0.5"} # optional
     ]
   end
 

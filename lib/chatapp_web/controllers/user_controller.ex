@@ -1,5 +1,6 @@
 defmodule ChatappWeb.UserController do
   use ChatappWeb, :controller
+  use PhoenixSwagger
   alias Chatapp.UserService, as: UserService
 
   def login(conn, _params = %{"username" => username}) do
@@ -20,5 +21,31 @@ defmodule ChatappWeb.UserController do
         |> put_view(ChatappWeb.ErrorView)
         |> render("error.json", changeset: changeset)
     end
+  end
+
+  swagger_path :create do
+    post("/api/v1/users")
+    description("Create new user")
+    produces("application/json")
+
+    parameters do
+      username(:query, :string, "User usuername", required: true)
+    end
+
+    # should probably create schemas instead
+    response(200, "OK")
+  end
+
+  swagger_path :login do
+    post("/api/v1/users/login")
+    description("\"Login\" user")
+    produces("application/json")
+
+    parameters do
+      username(:query, :string, "User usuername", required: true)
+    end
+
+    # should probably create schemas instead
+    response(200, "OK")
   end
 end

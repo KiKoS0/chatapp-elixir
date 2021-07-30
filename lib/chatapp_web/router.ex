@@ -13,6 +13,10 @@ defmodule ChatappWeb.Router do
     plug :accepts, ["json"]
   end
 
+  forward "/api/swagger", PhoenixSwagger.Plug.SwaggerUI,
+    otp_app: :chatapp,
+    swagger_file: "swagger.json"
+
   scope "/api/v1", ChatappWeb do
     pipe_through :api
 
@@ -22,6 +26,15 @@ defmodule ChatappWeb.Router do
     resources "/channels", ChannelController, only: [:index, :show, :create] do
       resources "/messages", MessageController, only: [:create, :index]
     end
+  end
+
+  def swagger_info do
+    %{
+      info: %{
+        version: "1.0",
+        title: "Chat app"
+      }
+    }
   end
 
   scope "/", ChatappWeb do
